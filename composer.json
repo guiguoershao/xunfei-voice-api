@@ -14,7 +14,10 @@
     "autoload": {
         "psr-4": {
             "Guiguoershao\\XunFeiVoiceApi\\": "src/"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
