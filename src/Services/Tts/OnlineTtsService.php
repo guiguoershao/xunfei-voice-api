@@ -35,6 +35,8 @@ class OnlineTtsService extends BaseService
         $response = new Response();
         $response->setCode(-1)->setMessage("未知错误");
         $audioFile = '/data/www/test/file/'.time().'.pcm';
+        $audioNewContent = '';
+        $audioData = [];
         $url = $this->createSocketUrl();
         $client = new WebSocket\Client($url);
         try {
@@ -43,37 +45,39 @@ class OnlineTtsService extends BaseService
             $socketResponse = $client->receive();
 
             $result = @json_decode($socketResponse, true);
-            $audioNewContent = '';
             do {
                 if ($result['code']) {
-                    return $result;
+                    continue;
+//                    return $result;
                 }
 
                 //返回的音频需要进行base64解码
                 $audioContent = base64_decode($result['data']['audio']);
                 file_put_contents($audioFile, $audioContent, FILE_APPEND);
                 $audioNewContent .= $audioContent;
+                $audioData[] = $result;
 
                 //继续接收消息
                 $result = $client->receive();
                 $result = json_decode($result, true);
             } while ($result['data']['status'] != 2);
 
-            $data = [
-                'audioPcmFile' => $audioFile,
-                'audioContent' => $audioNewContent
-            ];
-            $response->setCode(0)->setMessage("语音识别成功")->setData($data);
         } catch (\WebSocket\ConnectionException $connectionException) {
-            $response->setCode(0)->setMessage("语音识别异常：{$connectionException->getMessage()}");
+            $response->setMessage("语音识别异常：{$connectionException->getMessage()}");
         } catch (\Exception $exception) {
-            $response->setCode(0)->setMessage("语音识别异常：{$exception->getMessage()}");
+            $response->setMessage("语音识别异常：{$exception->getMessage()}");
         } finally {
             $client->close();
-            $response->setCode(0)->setMessage("finally 语音识别成功");
+            $response->setMessage("finally 语音识别成功");
         }
 
-        return $response->setCode(0)->setMessage("语音识别成功");
+        $data = [
+            'audioPcmFile' => $audioFile,
+            'audioData' => $audioData,
+//            'audioContent' => $audioNewContent
+        ];
+        $response->setCode(0)->setMessage("语音识别成功")->setData($data);
+        return $response;
     }
 
     /**
