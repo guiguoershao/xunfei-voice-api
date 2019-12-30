@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 $config = [
     'appId' => '5d52239f',
     'apiKey' => '8c03514c1951b0a7a67faad578cffb0d',
