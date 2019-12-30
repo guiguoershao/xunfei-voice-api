@@ -1,0 +1,24 @@
+{
+    "name": "guiguoershao/xunfei-voice-api",
+    "description": "讯飞语音接口（websocket）",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "fengyan",
+            "email": "guiguoershao@163.com"
+        }
+    ],
+    "require": {
+        "textalk/websocket": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Guiguoershao\\XunFeiVoiceApi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Guiguoershao\\XunFeiVoiceApi\\Tests\\": "tests/"
+        }
+    }
+}
