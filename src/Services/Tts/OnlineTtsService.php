@@ -35,9 +35,9 @@ class OnlineTtsService extends BaseService
         $response = new Response();
         $response->setCode(-1)->setMessage("未知错误");
         $audioFile = '/data/www/test/file/'.time().'.pcm';
+        $url = $this->createSocketUrl();
+        $client = new WebSocket\Client($url);
         try {
-            $url = $this->createSocketUrl();
-            $client = new WebSocket\Client($url);
             //  发送消息
             $client->send(json_encode($params));
             $socketResponse = $client->receive();

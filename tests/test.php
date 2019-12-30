@@ -5,6 +5,6 @@ $config = [
     'apiKey' => '8c03514c1951b0a7a67faad578cffb0d',
     'apiSecret' => '75c1fa573d29b82e3fa6abb4512e8004',
 ];
-$tts = new \Guiguoershao\XunFeiVoiceApi\Services\Tts\OnlineTtsService();
+$tts = new \Guiguoershao\XunFeiVoiceApi\Services\Tts\OnlineTtsService($config);
 $result = $tts->request('你好世界');
 var_dump($result);

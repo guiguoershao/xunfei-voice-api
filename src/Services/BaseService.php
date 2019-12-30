@@ -55,10 +55,8 @@ abstract class BaseService
         $signature_origin .= "GET {$this->reqPath} HTTP/1.1";
         $signature_sha = hash_hmac('sha256', $signature_origin, $this->apiSecret, true);
         $signature_sha = base64_encode($signature_sha);
-        // $authorization_origin = 'api_key="' . $this->apiKey . '", algorithm="hmac-sha256", ';
-        $authorization_origin = "api_key={$this->apiKey}, algorithm={$this->encryptMethod}, ";
-        // $authorization_origin .= 'headers="host date request-line", signature="' . $signature_sha . '"';
-        $authorization_origin .= "headers={$this->socketHeaders}, signature={$signature_sha}";
+        $authorization_origin = 'api_key="' . $this->apiKey . '", algorithm="' . $this->encryptMethod . '", ';
+        $authorization_origin .= 'headers="' . $this->socketHeaders . '", signature="' . $signature_sha . '"';
         $authorization = base64_encode($authorization_origin);
         return $authorization;
     }
@@ -73,7 +71,7 @@ abstract class BaseService
         $authorization = $this->createSocketSign($rfcDatetime);
 //        $url = $this->socketUrl . '?' . 'authorization=' . $authorization . '&date=' . urlencode($time) . '&host=ws-api.xfyun.cn';
         $rfcDatetime = urlencode($rfcDatetime);
-        $url = $this->socketUrl . "?authorization={$authorization}&date={$rfcDatetime}&host=ws-api.xfyun.cn";
+        $url = $this->socketUrl . "?authorization={$authorization}&date={$rfcDatetime}&host={$this->reqHost}";
         return $url;
     }
 
