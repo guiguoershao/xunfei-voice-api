@@ -18,13 +18,13 @@ abstract class BaseService
     protected $apiSecret = '';
 
     //  socket url
-    protected $socketUrl = 'wss://tts-api.xfyun.cn/v2/tts';
+    protected $socketUrl = '';
 
     //  请求主机
-    protected $reqHost = 'ws-api.xfyun.cn';
+    protected $reqHost = '';
 
     //  请求路径
-    protected $reqPath = '/v2/tts';
+    protected $reqPath = '';
 
     //  headers 是参与签名的参数，请注意是固定的参数名（"host date request-line"）
     protected $socketHeaders = 'host date request-line';

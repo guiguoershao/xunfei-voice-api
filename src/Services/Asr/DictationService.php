@@ -1,43 +1,44 @@
 <?php
 
-namespace Guiguoershao\XunFeiVoiceApi\Services\Tts;
+
+namespace Guiguoershao\XunFeiVoiceApi\Services\Asr;
+
 
 use Guiguoershao\XunFeiVoiceApi\Services\BaseService;
 use Guiguoershao\XunFeiVoiceApi\Utils\Response;
 use WebSocket;
 
-class OnlineTtsService extends BaseService
+class DictationService extends BaseService
 {
     //  socket url
-    protected $socketUrl = 'wss://tts-api.xfyun.cn/v2/tts';
+    protected $socketUrl = 'wss://iat-api.xfyun.cn/v2/iat';
 
     //  请求主机
-    protected $reqHost = 'ws-api.xfyun.cn';
+    protected $reqHost = 'iat-api.xfyun.cn';
 
     //  请求路径
-    protected $reqPath = '/v2/tts';
+    protected $reqPath = '/v2/iat';
 
     //  headers 是参与签名的参数，请注意是固定的参数名（"host date request-line"）
     protected $socketHeaders = 'host date request-line';
 
-    protected function createReqParams($draft_content, $speed = 50, $volume = 50, $pitch = 50)
+    protected function createReqParams($draftContent)
     {
         return [
             'common' => [
                 'app_id' => $this->appId,
             ],
             'business' => [
-                'aue' => 'raw',
-                'auf' => 'audio/L16;rate=16000',
-                'vcn' => 'aisbabyxu',
-                'speed' => (int)$speed,
-                'volume' => (int)$volume,
-                'pitch' => (int)$pitch,
-                'tte' => 'utf8',
+                'language' => 'zh_cn',
+                'domain' => 'iat', // iat：日常用语 medical：医疗
+                'accent' => 'mandarin',
+//                'vad_eos' => 2000,
             ],
             'data' => [
-                'status' => 2,
-                'text' => base64_encode($draft_content),
+                'status' => 0,
+                'format' => 'audio/L16;rate=16000',
+                'encoding' => 'raw',
+                'audio' => $draftContent, // base64 音频流
             ],
         ];
     }
@@ -51,12 +52,15 @@ class OnlineTtsService extends BaseService
         $audioData = [];
         $url = $this->createSocketUrl();
         $client = new WebSocket\Client($url);
+
         try {
             //  发送消息
             $client->send(json_encode($params));
+            $client->send(json_encode(['data' => ['status' => 2]]));
             $socketResponse = $client->receive();
 
             $result = @json_decode($socketResponse, true);
+
             do {
                 if ($result['code']) {
                     continue;
@@ -73,36 +77,8 @@ class OnlineTtsService extends BaseService
                 $result = $client->receive();
                 $result = json_decode($result, true);
             } while ($result['data']['status'] != 2);
-
-        } catch (\WebSocket\ConnectionException $connectionException) {
-            $response->setMessage("语音识别异常：{$connectionException->getMessage()}");
         } catch (\Exception $exception) {
-            $response->setMessage("语音识别异常：{$exception->getMessage()}");
-        } finally {
-            $client->close();
-            $response->setMessage("finally 语音识别成功");
+
         }
-
-        $data = [
-//            'audioPcmFile' => $audioFile,
-            'audioData' => $audioData,
-            'audioContent' => $audioNewContent
-        ];
-        $response->setCode(0)->setMessage("语音识别成功")->setData($data);
-        return $response;
-    }
-
-    /**
-     * @param $draft_content
-     * @param int $speed
-     * @param int $volume
-     * @param int $pitch
-     * @return false|Response|mixed|string|null
-     */
-    public function request($draft_content, $speed = 50, $volume = 50, $pitch = 50)
-    {
-        $params = $this->createReqParams($draft_content, $speed, $volume, $pitch);
-
-        return $this->requestWebSocketService($params);
     }
 }
